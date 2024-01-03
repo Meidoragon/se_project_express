@@ -24,14 +24,27 @@ const updateItem = (req, res) => {
   const {itemId} = req.params;
   const {imageUrl} = req.body;
 
-  ClothingItem.findByIdAndUpdate(itemId, {$set: {imageUrl}}).orFail().then((item) => res.status(200).send({data: item}))
+  ClothingItem.findByIdAndUpdate(itemId,
+    {$set: {imageUrl: imageUrl}},
+    {runValidators: true}
+  ).orFail().then((item) => res.status(200).send({data: item}))
   .catch((err) => {
     res.status(500).send({message: `Error from updateItem: ${err}`});
+  })
+}
+
+const deleteItem = (req, res) => {
+  const {itemId} = req.params;
+  console.info(`deleteItem: ${itemId}`)
+  ClothingItem.findByIdAndDelete(itemId).orFail().then((item) => res.status(204).send({}))
+  .catch((err) => {
+    res.status(500).send({message: `Error from deleteItem: ${err}`});
   })
 }
 
 module.exports = {
   createItem,
   getItems,
-  updateItem
+  updateItem,
+  deleteItem
 }
