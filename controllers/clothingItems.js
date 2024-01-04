@@ -7,7 +7,7 @@ const createItem = (req, res) => {
   const {name, weather, imageUrl} = req.body;
   ClothingItem.create({name, weather, imageUrl}).then((item) => {
     console.info(item);
-    res.send({data:item})
+    res.status(200).send({data:item})
   }).catch((err) => {
     res.status(500).send({message: `Error from createItem: ${err}`});
   })
@@ -45,6 +45,6 @@ const deleteItem = (req, res) => {
 module.exports = {
   createItem,
   getItems,
-  updateItem,
+  // updateItemImage,
   deleteItem
 }
