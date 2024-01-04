@@ -7,6 +7,7 @@ const DEFAULT = 500;
 const sendErrorResponse = (res, err) => {
   //something something error enum
   //something something rust match statement
+
   if (err.name === 'CastError') {
     res.status(INVALID_DATA).send({message: `${err}`});
   } else if (err.name === 'ValidationError') {

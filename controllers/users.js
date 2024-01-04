@@ -1,5 +1,8 @@
-const User = require('../models/user');
-
+const User = require('../models/user.js');
+const {
+  SUCCESS,
+  sendErrorResponse,
+} = require('../utils/errors.js');
 //CRUD
 
 //Create
@@ -12,8 +15,8 @@ function createUser(req, res) {
     console.info("createUser response: ", user)
     res.status(200).send(user)
   }).catch((err) => {
-      console.error("Error from createUser: ", err);
-      res.status(400).send({message: `Error creating user: ${err}`})
+    console.error("Error from createUser: ", `${err}`);
+    sendErrorResponse(res, err);
     })
 }
 //Request
@@ -37,23 +40,12 @@ function getUser(req, res) {
     })
     .catch((err) => {
       console.error(`Error from getUser: ${err}`)
-      res.status(400).send({message: `Error getting user: ${err}`});
+      res.status(400).send({message: `Error getting users: ${err}`});
     })
-}
-
-//Update
-function updateUser(req, res) {
-
-}
-//Delete
-function deleteUser(req, res) {
-
 }
 
 module.exports = {
   createUser,
   getUsers,
   getUser,
-  /*updateUser,
-  deleteUser*/
 }
