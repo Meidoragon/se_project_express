@@ -2,11 +2,10 @@ const express = require('express');
 const mongoose = require('mongoose');
 
 const { PORT = 3001, BASE_PATH, DB } = process.env;
-console.log(DB);
 const app = express();
 
-mongoose.connect(`mongodb://127.0.0.1:27017/${DB}`, () => {
-  console.info(`Connected to DB: ${DB}`);
+mongoose.connect(`mongodb://127.0.0.1:27017/wtwr_db`, () => {
+  console.info(`Connected to DB: wtwr_db`);
 }, (e) => console.error(`DB error: ${e}`));
 
 const routes = require('./routes');
@@ -22,5 +21,5 @@ app.use(routes);
 
 app.listen(PORT, () => {
   console.log(`${BASE_PATH}:${PORT}`);
-  console.log(`DB=${DB}`);
+  console.log(`DB=wtwr_db`);
 });
