@@ -26,7 +26,7 @@ function getUsers(req, res) {
   User.find({}).then((users) => res.status(200).send(users))
   .catch((err) => {
     console.error(`Error from getUsers: ${err}`)
-    res.status(400).send({message: `Error getting users: ${err}`});
+    sendErrorResponse(res, err);
   })
 }
 
@@ -40,7 +40,7 @@ function getUser(req, res) {
     })
     .catch((err) => {
       console.error(`Error from getUser: ${err}`)
-      res.status(400).send({message: `Error getting users: ${err}`});
+      sendErrorResponse(res, err);
     })
 }
 
