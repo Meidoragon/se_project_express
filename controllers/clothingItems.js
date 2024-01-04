@@ -1,51 +1,91 @@
-const ClothingItem = require('../models/clothingItem')
+const ClothingItem = require('../models/clothingItem.js')
+const {
+  SUCCESS,
+  sendErrorResponse
+} = require('../utils/errors.js');
 
 const createItem = (req, res) => {
-  console.info(req);
-  console.info(req.body);
+  console.info("createItem request body: ", req.body);
+  console.info("createItem request params: ", req.params);
+  console.info("createItem user id: ", req.user._id);
 
   const {name, weather, imageUrl} = req.body;
-  ClothingItem.create({name, weather, imageUrl}).then((item) => {
+  const userId = req.user._id;
+  ClothingItem.create({name, weather, imageUrl, owner: userId}).then((item) => {
     console.info(item);
-    res.status(200).send({data:item})
+    res.status(SUCCESS).send({data:item})
   }).catch((err) => {
-    res.status(500).send({message: `Error from createItem: ${err}`});
+    console.error("createItem error response: ", `${err}`);
+    sendErrorResponse(res, err);
   })
 }
 
 const getItems = (req, res) => {
-  ClothingItem.find({}).then((items) => res.status(200).send(items))
+  console.info("getItems request body: ", req.body);
+  console.info("getItems request params: ", req.params);
+  console.info("getItems user id: ", req.user._id);
+
+  ClothingItem.find({}).then((items) => res.status(SUCCESS).send(items))
   .catch((err) => {
-      res.status(500).send({message: `Error from getItems: ${err}`});
+      console.error("getItems error response: ", `${err}`);
+      sendErrorResponse(res, err);
     })
 }
 
-const updateItem = (req, res) => {
-  //TODO: Turn this into generic update item fn
-  const {itemId} = req.params;
-  const {imageUrl} = req.body;
+const deleteItem = (req, res) => {
+  console.info("deleteItem request body: ", req.body);
+  console.info("deleteItem request params: ",  req.params);
+  console.info("deleteItem user id: ", req.user._id);
 
-  ClothingItem.findByIdAndUpdate(itemId,
-    {$set: {imageUrl: imageUrl}},
-    {runValidators: true}
-  ).orFail().then((item) => res.status(200).send({data: item}))
-  .catch((err) => {
-    res.status(500).send({message: `Error from updateItem: ${err}`});
+  const {itemId} = req.params;
+  console.info(`deleteItem: ${itemId}`)
+  ClothingItem.findByIdAndDelete(itemId)
+    .orFail()
+    .then((item) => res.status(SUCCESS).send(item))
+    .catch((err) => {
+      console.error("deleteItem error response: ", `${err}`);
+      sendErrorResponse(res, err);
   })
 }
 
-const deleteItem = (req, res) => {
-  const {itemId} = req.params;
-  console.info(`deleteItem: ${itemId}`)
-  ClothingItem.findByIdAndDelete(itemId).orFail().then((item) => res.status(204).send({}))
+const likeItem = (req, res) => {
+  console.info("likeItem request body: ", req.body);
+  console.info("likeItem request params: ", req.params);
+  console.info("likeItem user id: ", req.user._id);
+
+  ClothingItem.findByIdAndUpdate(
+    req.params.itemId,
+    { $addToSet: { likes: req.user._id} },
+    { new: true },
+  ).orFail()
+  .then((item) => res.status(SUCCESS).send(item))
   .catch((err) => {
-    res.status(500).send({message: `Error from deleteItem: ${err}`});
+    console.error("likeItem error response: ", `${err}`);
+    sendErrorResponse(res, err);
+    }
+  )
+}
+
+const dislikeItem = (req, res) => {
+  console.info("dislikeItem request body: ", req.body);
+  console.info("dislikeItem request params: ", req.params);
+  console.info("dislikeItem user id: ", req.user._id);
+  ClothingItem.findByIdAndUpdate(
+    req.params.itemId,
+    { $pull: {likes: req.user._id} },
+    { new: true },
+  ).orFail()
+  .then((item) => res.status(SUCCESS).send(item))
+  .catch((err) => {
+    console.error("dislikeItem error response: ", `${err}`);
+    sendErrorResponse(res, err);
   })
 }
 
 module.exports = {
   createItem,
   getItems,
-  // updateItemImage,
+  likeItem,
+  dislikeItem,
   deleteItem
 }

@@ -13,6 +13,7 @@ function createUser(req, res) {
     res.status(200).send(user)
   }).catch((err) => {
       console.error("Error from createUser: ", err);
+      res.status(400).send({message: `Error creating user: ${err}`})
     })
 }
 //Request
@@ -21,7 +22,8 @@ function getUsers(req, res) {
   console.info("getUsers request params: ", req.params);
   User.find({}).then((users) => res.status(200).send(users))
   .catch((err) => {
-    res.status(500).send({message: `Error from getUsers: ${err}`});
+    console.error(`Error from getUsers: ${err}`)
+    res.status(400).send({message: `Error getting users: ${err}`});
   })
 }
 
@@ -34,7 +36,8 @@ function getUser(req, res) {
       res.status(200).send({data: user});
     })
     .catch((err) => {
-      res.status(500).send({message: `Error from getUser: ${err}`});
+      console.error(`Error from getUser: ${err}`)
+      res.status(400).send({message: `Error getting user: ${err}`});
     })
 }
 

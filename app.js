@@ -11,6 +11,12 @@ mongoose.connect(`mongodb://127.0.0.1:27017/${DB}`, (r) => {
 
 const routes = require('./routes')
 app.use(express.json());
+app.use((req, res, next) =>  {
+  req.user = {
+    _id: '6595fce79de40564cbbc62e7',
+  }
+  next();
+})
 app.use(routes);
 
 

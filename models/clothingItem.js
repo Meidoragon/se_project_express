@@ -22,17 +22,20 @@ const clothingItem = new mongoose.Schema ({
       message: 'ERROR: Clothing image must be a valid URL',
     }
   },
-  // createdAt: {
-  //   type: Date,
-  //   default: Date.now()
-  // },
-  // owner: {
-  //   type: mongoose.Schema.Types.user,
-  //   required: true,
-  // },
-  // like: [mongoose.Schema.Types.user],
+  createdAt: {
+    type: Date,
+    default: Date.now()
   },
-)
+  owner: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'user',
+    required: true,
+  },
+  likes: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'user',
+  }],
+})
 
 
 
