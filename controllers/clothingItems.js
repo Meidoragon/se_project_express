@@ -21,6 +21,7 @@ const getItems = (req, res) => {
 }
 
 const updateItem = (req, res) => {
+  //TODO: Turn this into generic update item fn
   const {itemId} = req.params;
   const {imageUrl} = req.body;
 
