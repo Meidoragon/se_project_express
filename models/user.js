@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
 
-const user = new mongoose.Schema ({
+const user = new mongoose.Schema({
   name: {
     required: true,
     type: String,
@@ -16,10 +16,8 @@ const user = new mongoose.Schema ({
         return validator.isURL(value);
       },
       message: 'ERROR: User avatar must be a valid URL',
-    }
-  }
-})
+    },
+  },
+});
 
-
-
-module.exports = mongoose.model('user', user)
+module.exports = mongoose.model('user', user);
