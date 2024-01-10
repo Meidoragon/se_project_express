@@ -6,7 +6,8 @@
   "scripts": {
     "start": "BASE_PATH=127.0.0.1 PORT=3001 DB=wtwr_prod node ./app.js",
     "dev": "BASE_PATH=127.0.0.1 PORT=3001 DB=wtwr_dev npx nodemon ./app.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "npx eslint ."
   },
   "repository": {
     "type": "git",
