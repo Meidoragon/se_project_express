@@ -5,17 +5,14 @@ const DATA_NOT_FOUND = 404;
 const DEFAULT = 500;
 
 const sendErrorResponse = (res, err) => {
-  // something something error enum
-  // something something rust match statement
-
   if (err.name === 'CastError') {
-    res.status(INVALID_DATA).send({ message: `${err}` });
+    res.status(INVALID_DATA).send({ message: 'Invalid data.' });
   } else if (err.name === 'ValidationError') {
-    res.status(INVALID_DATA).send({ message: `${err}` });
+    res.status(INVALID_DATA).send({ message: 'Invalid data.' });
   } else if (err.name === 'DocumentNotFoundError') {
-    res.status(DATA_NOT_FOUND).send({ message: `${err}` });
+    res.status(DATA_NOT_FOUND).send({ message: 'Data not found.' });
   } else {
-    res.status(500).send({ message: `${err}` });
+    res.status(DEFAULT).send({ message: 'Server error.' });
   }
 };
 
