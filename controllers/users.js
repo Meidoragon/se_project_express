@@ -1,5 +1,8 @@
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const User = require('../models/user');
+const config = require('../utils/config');
+const { createValidationError } = require('../utils/errors');
 // const bcrypt = require('bcryptjs');
 
 const {
@@ -61,8 +64,30 @@ function getUser(req, res) {
     });
 }
 
+function login(req, res) {
+  console.info('Login attempt...');
+  if (!('email' in req.body) || !('password' in req.body)) {
+    console.info('failed.');
+    sendErrorResponse(res, createValidationError());
+  } else {
+    User.findUserByCredentials(req.body.email, req.body.password)
+      .then((user) => {
+        const token = jwt.sign({ _id: user._id }, config.JWT_SECRET, {
+          expiresIn: '7d',
+        });
+        console.info('success.');
+        res.status(SUCCESS).send({ token });
+      })
+      .catch((err) => {
+        console.info('failed.');
+        sendErrorResponse(res, err);
+      });
+  }
+}
+
 module.exports = {
   createUser,
   getUsers,
   getUser,
+  login,
 };

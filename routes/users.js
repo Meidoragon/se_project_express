@@ -3,10 +3,10 @@ const { createUser, getUsers, getUser } = require('../controllers/users');
 // CRUD
 
 // Create
-router.post('/', createUser);
-
+// router.post('/', createUser);
+//
 // Request
-router.get('/', getUsers);
-router.get('/:userId', getUser);
+// router.get('/', getUsers);
+// router.get('/:userId', getUser);
 
 module.exports = router;
