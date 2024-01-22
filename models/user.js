@@ -18,6 +18,19 @@ const user = new mongoose.Schema({
       message: 'ERROR: User avatar must be a valid URL',
     },
   },
+  email: {
+    required: true,
+    type: String,
+    validate: {
+      validator(value) {
+        return validator.isEmail(value);
+      },
+    },
+  },
+  password: {
+    required: true,
+    type: String,
+  },
 });
 
 module.exports = mongoose.model('user', user);
