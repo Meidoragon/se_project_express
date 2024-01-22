@@ -1,4 +1,7 @@
+const bcrypt = require('bcrypt');
 const User = require('../models/user');
+// const bcrypt = require('bcryptjs');
+
 const {
   SUCCESS,
   sendErrorResponse,
@@ -10,15 +13,29 @@ function createUser(req, res) {
   console.info('createUser request body: ', req.body);
   console.info('createUser request params: ', req.params);
 
-  const { name, avatar } = req.body;
-  User.create({ name, avatar }).then((user) => {
-    console.info('createUser response: ', user);
-    res.status(SUCCESS).send(user);
-  }).catch((err) => {
-    console.error('Error from createUser: ', `${err}`);
-    sendErrorResponse(res, err);
-  });
+  const {
+    name,
+    avatar,
+    email,
+    password,
+  } = req.body;
+  bcrypt.hash(password, 10)
+    .then((hash) => {
+      User.create({
+        name,
+        avatar,
+        email,
+        password: hash,
+      }).then((user) => {
+        console.info('createUser response : ', user);
+        res.status(SUCCESS).send({ avatar: user.avatar, name: user.name });
+      }).catch((err) => {
+        console.error('Error creating User: ', `${err}`);
+        sendErrorResponse(res, err);
+      });
+    });
 }
+
 // Request
 function getUsers(req, res) {
   console.info('getUsers request body: ', req.body);
