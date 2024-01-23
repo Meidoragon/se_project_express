@@ -35,19 +35,20 @@ const userSchema = new mongoose.Schema({
   password: {
     required: true,
     type: String,
+    select: false,
   },
 });
 
 userSchema.statics.findUserByCredentials = function findUserByCredentials(email, password) {
   // TODO? validate email before searching DB?
   return this.findOne({ email })
+    .select('password')
     .then((user) => {
       if (!user) {
         console.info('email not found');
         const err = createAuthError();
         return Promise.reject(err);
       }
-
       return bcrypt.compare(password, user.password)
         .then((matched) => {
           if (!matched) {

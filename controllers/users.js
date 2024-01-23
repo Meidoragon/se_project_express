@@ -2,8 +2,11 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const config = require('../utils/config');
-const { createValidationError } = require('../utils/errors');
-// const bcrypt = require('bcryptjs');
+const {
+  createValidationError,
+  createAuthError,
+} = require('../utils/errors');
+const { isAuthorized } = require('../utils/auth');
 
 const {
   SUCCESS,
@@ -43,31 +46,39 @@ function createUser(req, res) {
 function getUsers(req, res) {
   console.info('getUsers request body: ', req.body);
   console.info('getUsers request params: ', req.params);
-  User.find({}).then((users) => res.status(SUCCESS).send(users))
-    .catch((err) => {
-      console.error(`Error from getUsers: ${err}`);
-      sendErrorResponse(res, err);
-    });
+  if (!isAuthorized(req)) {
+    sendErrorResponse(res, createAuthError());
+  } else {
+    User.find({}).then((users) => res.status(SUCCESS).send(users))
+      .catch((err) => {
+        console.error(`Error from getUsers: ${err}`);
+        sendErrorResponse(res, err);
+      });
+  }
 }
 
 function getUser(req, res) {
   console.info('getUser request body: ', req.body);
   console.info('getUser request params: ', req.params);
-  const { userId } = req.params;
-  User.findById(userId).orFail()
-    .then((user) => {
-      res.status(SUCCESS).send({ data: user });
-    })
-    .catch((err) => {
-      console.error(`Error from getUser: ${err}`);
-      sendErrorResponse(res, err);
-    });
+  if (!isAuthorized(req)) {
+    sendErrorResponse(res, createAuthError());
+  } else {
+    const { userId } = req.params;
+    User.findById(userId).orFail()
+      .then((user) => {
+        res.status(SUCCESS).send({ data: user });
+      })
+      .catch((err) => {
+        console.error(`Error from getUser: ${err}`);
+        sendErrorResponse(res, err);
+      });
+  }
 }
 
 function login(req, res) {
   console.info('Login attempt...');
   if (!('email' in req.body) || !('password' in req.body)) {
-    console.info('failed.');
+    console.info('login failed.');
     sendErrorResponse(res, createValidationError());
   } else {
     User.findUserByCredentials(req.body.email, req.body.password)
@@ -75,11 +86,11 @@ function login(req, res) {
         const token = jwt.sign({ _id: user._id }, config.JWT_SECRET, {
           expiresIn: '7d',
         });
-        console.info('success.');
+        console.info('login success.');
         res.status(SUCCESS).send({ token });
       })
       .catch((err) => {
-        console.info('failed.');
+        console.info('login failed.');
         sendErrorResponse(res, err);
       });
   }
