@@ -4,6 +4,7 @@ const {
   // createUser,
   // getUsers,
   // getUser,
+  updateProfile,
 } = require('../controllers/users');
 // CRUD
 
@@ -14,4 +15,5 @@ const {
 // router.get('/', getUsers);
 // router.get('/:userId', getUser);
 router.get('/me', getCurrentUser);
+router.patch('/me', updateProfile);
 module.exports = router;

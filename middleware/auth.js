@@ -16,14 +16,12 @@ function extractBearerToken(header) {
 
 function authorize(req, res, next) {
   const { authorization } = req.headers;
-  console.info(`before authorization check: ${authorization}`);
   if (!authorization || !authorization.startsWith('Bearer ')) {
     return handleAuthError(res);
   }
 
   const token = extractBearerToken(authorization);
   let payload;
-  console.info(`after extraction: ${token}`);
   try {
     payload = jwt.verify(token, JWT_SECRET);
   } catch (err) {
@@ -33,12 +31,10 @@ function authorize(req, res, next) {
 
   user.findById(payload).orFail()
     .then(() => {
-      console.info(`after user ID found ${payload}`);
       req.user = payload;
       next();
     })
     .catch(() => {
-      console.info(`after user ID not found ${payload}`);
       handleAuthError(res);
     });
 

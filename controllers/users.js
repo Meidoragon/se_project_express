@@ -116,10 +116,35 @@ function login(req, res) {
   }
 }
 
+function updateProfile(req, res) {
+  if (!isAuthorized(req)) {
+    sendErrorResponse(res, createAuthError());
+  } else {
+    console.info(`Update user: ${req.user._id}`);
+    const userId = { _id: req.user._id };
+    const update = { name: req.body.name, avatar: req.body.avatar };
+    const options = {
+      new: true,
+      runValidators: true,
+    };
+    User.findOneAndUpdate(userId, update, options)
+      .then((newUser) => {
+        console.info('Success. New user is: ');
+        console.info(newUser);
+        res.status(SUCCESS).send({ data: newUser });
+      })
+      .catch((err) => {
+        console.info('Update failed');
+        sendErrorResponse(res, err);
+      });
+  }
+}
+
 module.exports = {
   createUser,
   getCurrentUser,
   getUsers,
   getUser,
   login,
+  updateProfile,
 };
