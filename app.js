@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const helmet = require('helmet');
+const cors = require('cors');
 const { authorize } = require('./middleware/auth');
 const {
   createUser,
@@ -25,12 +26,7 @@ const routes = require('./routes');
 app.disable('x-powered-by');
 app.use(express.json());
 app.use(helmet());
-// app.use((req, res, next) => {
-//   req.user = {
-//     _id: '6595fce79de40564cbbc62e7',
-//   };
-//   next();
-// });
+app.use(cors());
 app.post('/signup', createUser);
 app.post('/signin', login);
 app.get('/items', getItems);

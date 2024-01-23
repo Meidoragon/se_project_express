@@ -2,12 +2,12 @@ const jwt = require('jsonwebtoken');
 const { JWT_SECRET } = require('../utils/config');
 const user = require('../models/user');
 const {
-  createAuthError,
+  createAuthenticationError,
   sendErrorResponse,
 } = require('../utils/errors');
 
 function handleAuthError(res) {
-  sendErrorResponse(res, createAuthError());
+  sendErrorResponse(res, createAuthenticationError());
 }
 
 function extractBearerToken(header) {

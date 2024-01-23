@@ -4,7 +4,7 @@ const User = require('../models/user');
 const config = require('../utils/config');
 const {
   createValidationError,
-  createAuthError,
+  createAuthenticationError,
 } = require('../utils/errors');
 const { isAuthorized } = require('../utils/auth');
 
@@ -34,7 +34,7 @@ function createUser(req, res) {
         password: hash,
       }).then((user) => {
         console.info('createUser response : ', user);
-        res.status(SUCCESS).send({ avatar: user.avatar, name: user.name });
+        res.status(SUCCESS).send({ avatar: user.avatar, name: user.name, email: user.email });
       }).catch((err) => {
         console.error('Error creating User: ', `${err}`);
         sendErrorResponse(res, err);
@@ -47,7 +47,7 @@ function getUsers(req, res) {
   console.info('getUsers request body: ', req.body);
   console.info('getUsers request params: ', req.params);
   if (!isAuthorized(req)) {
-    sendErrorResponse(res, createAuthError());
+    sendErrorResponse(res, createAuthenticationError());
   } else {
     User.find({}).then((users) => res.status(SUCCESS).send(users))
       .catch((err) => {
@@ -61,7 +61,7 @@ function getUser(req, res) {
   console.info('getUser request body: ', req.body);
   console.info('getUser request params: ', req.params);
   if (!isAuthorized(req)) {
-    sendErrorResponse(res, createAuthError());
+    sendErrorResponse(res, createAuthenticationError());
   } else {
     const { userId } = req.params;
     User.findById(userId).orFail()
@@ -77,15 +77,15 @@ function getUser(req, res) {
 
 function getCurrentUser(req, res) {
   console.info(req);
-  console.info('getCurrentUser request body: ', req.body);
-  console.info('getCurrentUser request params: ', req.params);
+  console.info('getCurrentUser: ', req.user._id);
   if (!isAuthorized(req)) {
-    sendErrorResponse(res, createAuthError());
+    sendErrorResponse(res, createAuthenticationError());
   } else {
     const userId = req.user._id;
     User.findById(userId)
       .orFail()
       .then((user) => {
+        console.info(user);
         res.status(SUCCESS).send({ data: user });
       })
       .catch((err) => {
@@ -99,6 +99,7 @@ function login(req, res) {
   console.info('Login attempt...');
   if (!('email' in req.body) || !('password' in req.body)) {
     console.info('login failed.');
+    console.info('no email or password');
     sendErrorResponse(res, createValidationError());
   } else {
     User.findUserByCredentials(req.body.email, req.body.password)
@@ -118,7 +119,7 @@ function login(req, res) {
 
 function updateProfile(req, res) {
   if (!isAuthorized(req)) {
-    sendErrorResponse(res, createAuthError());
+    sendErrorResponse(res, createAuthenticationError());
   } else {
     console.info(`Update user: ${req.user._id}`);
     const userId = { _id: req.user._id };

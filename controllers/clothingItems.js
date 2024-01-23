@@ -1,7 +1,8 @@
 const ClothingItem = require('../models/clothingItem');
 const {
   SUCCESS,
-  createAuthError,
+  createAuthenticationError,
+  createAuthorizationError,
   sendErrorResponse,
 } = require('../utils/errors');
 const { isAuthorized } = require('../utils/auth');
@@ -12,7 +13,7 @@ const createItem = (req, res) => {
   console.info('createItem user id: ', req.user._id);
 
   if (!isAuthorized(req)) {
-    sendErrorResponse(createAuthError());
+    sendErrorResponse(createAuthenticationError());
   } else {
     const { name, weather, imageUrl } = req.body;
     const userId = req.user._id;
@@ -41,20 +42,39 @@ const getItems = (req, res) => {
 };
 
 const deleteItem = (req, res) => {
+  // TODO: Find a better way to handle this nested monstrosity.
   console.info('deleteItem request body: ', req.body);
   console.info('deleteItem request params: ', req.params);
   console.info('deleteItem user id: ', req.user._id);
 
   if (!isAuthorized(req)) {
-    sendErrorResponse(createAuthError());
+    sendErrorResponse(createAuthenticationError());
   } else {
     const { itemId } = req.params;
-    console.info(`deleteItem: ${itemId}`);
-    ClothingItem.findByIdAndDelete(itemId)
+    ClothingItem.findOne({ _id: itemId })
       .orFail()
-      .then((item) => res.status(SUCCESS).send(item))
+      .then((validateItem) => {
+        const ownerId = validateItem.owner.valueOf();
+        console.log(`ownerId: ${ownerId}`);
+        if (!(ownerId === req.user._id)) {
+          console.error(`${validateItem.owner} !== ${req.user._id}`);
+          const err = createAuthorizationError('Validation failed');
+          sendErrorResponse(res, err);
+        } else {
+          console.info(`deleteItem: ${itemId}`);
+          ClothingItem.findByIdAndDelete(itemId)
+            .orFail()
+            .then((item) => {
+              res.status(SUCCESS).send(item);
+            })
+            .catch((err) => {
+              console.error('deleteItem error response: ', `${err}`);
+              sendErrorResponse(res, err);
+            });
+        }
+      })
       .catch((err) => {
-        console.error('deleteItem error response: ', `${err}`);
+        console.log(err);
         sendErrorResponse(res, err);
       });
   }
@@ -66,7 +86,7 @@ const likeItem = (req, res) => {
   console.info('likeItem user id: ', req.user._id);
 
   if (!isAuthorized) {
-    sendErrorResponse(createAuthError());
+    sendErrorResponse(createAuthenticationError());
   } else {
     ClothingItem.findByIdAndUpdate(
       req.params.itemId,
@@ -87,7 +107,7 @@ const dislikeItem = (req, res) => {
   console.info('dislikeItem user id: ', req.user._id);
 
   if (!isAuthorized) {
-    sendErrorResponse(createAuthError());
+    sendErrorResponse(createAuthenticationError());
   } else {
     ClothingItem.findByIdAndUpdate(
       req.params.itemId,
