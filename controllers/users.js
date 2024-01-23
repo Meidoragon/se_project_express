@@ -75,6 +75,26 @@ function getUser(req, res) {
   }
 }
 
+function getCurrentUser(req, res) {
+  console.info(req);
+  console.info('getCurrentUser request body: ', req.body);
+  console.info('getCurrentUser request params: ', req.params);
+  if (!isAuthorized(req)) {
+    sendErrorResponse(res, createAuthError());
+  } else {
+    const userId = req.user._id;
+    User.findById(userId)
+      .orFail()
+      .then((user) => {
+        res.status(SUCCESS).send({ data: user });
+      })
+      .catch((err) => {
+        console.error(`Error from getCurrentUser: ${err}`);
+        sendErrorResponse(res, err);
+      });
+  }
+}
+
 function login(req, res) {
   console.info('Login attempt...');
   if (!('email' in req.body) || !('password' in req.body)) {
@@ -98,6 +118,7 @@ function login(req, res) {
 
 module.exports = {
   createUser,
+  getCurrentUser,
   getUsers,
   getUser,
   login,
