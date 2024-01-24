@@ -15,6 +15,7 @@ const {
   DB,
   DB_PORT,
 } = process.env;
+
 const app = express();
 console.log(DB);
 mongoose.connect(`mongodb://127.0.0.1:${DB_PORT}/${DB}`, () => {

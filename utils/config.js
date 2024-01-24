@@ -1,2 +1,5 @@
-const { JWT_SECRET_SE_EXPRESS: JWT_SECRET } = process.env;
+require('dotenv').config();
+
+let { JWT_SECRET } = process.env;
+JWT_SECRET = JWT_SECRET || 'some-sensible-default';
 module.exports = { JWT_SECRET };
