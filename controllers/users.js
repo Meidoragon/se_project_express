@@ -38,6 +38,11 @@ function createUser(req, res) {
         console.error('Error creating User: ', `${err}`);
         sendErrorResponse(res, err);
       });
+    })
+    .catch((err) => {
+      console.error('Error hashing password: ');
+      console.error(err);
+      sendErrorResponse(res, err);
     });
 }
 
