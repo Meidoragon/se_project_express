@@ -4,9 +4,8 @@ const User = require('../models/user');
 const config = require('../utils/config');
 const {
   createValidationError,
-  createAuthenticationError,
 } = require('../utils/errors');
-const { isAuthorized } = require('../utils/auth');
+// const { isAuthorized } = require('../utils/auth');
 
 const {
   SUCCESS,
@@ -46,53 +45,41 @@ function createUser(req, res) {
 function getUsers(req, res) {
   console.info('getUsers request body: ', req.body);
   console.info('getUsers request params: ', req.params);
-  if (!isAuthorized(req)) {
-    sendErrorResponse(res, createAuthenticationError());
-  } else {
-    User.find({}).then((users) => res.status(SUCCESS).send(users))
-      .catch((err) => {
-        console.error(`Error from getUsers: ${err}`);
-        sendErrorResponse(res, err);
-      });
-  }
+  User.find({}).then((users) => res.status(SUCCESS).send(users))
+    .catch((err) => {
+      console.error(`Error from getUsers: ${err}`);
+      sendErrorResponse(res, err);
+    });
 }
 
 function getUser(req, res) {
   console.info('getUser request body: ', req.body);
   console.info('getUser request params: ', req.params);
-  if (!isAuthorized(req)) {
-    sendErrorResponse(res, createAuthenticationError());
-  } else {
-    const { userId } = req.params;
-    User.findById(userId).orFail()
-      .then((user) => {
-        res.status(SUCCESS).send({ data: user });
-      })
-      .catch((err) => {
-        console.error(`Error from getUser: ${err}`);
-        sendErrorResponse(res, err);
-      });
-  }
+  const { userId } = req.params;
+  User.findById(userId).orFail()
+    .then((user) => {
+      res.status(SUCCESS).send({ data: user });
+    })
+    .catch((err) => {
+      console.error(`Error from getUser: ${err}`);
+      sendErrorResponse(res, err);
+    });
 }
 
 function getCurrentUser(req, res) {
   console.info(req);
   console.info('getCurrentUser: ', req.user._id);
-  if (!isAuthorized(req)) {
-    sendErrorResponse(res, createAuthenticationError());
-  } else {
-    const userId = req.user._id;
-    User.findById(userId)
-      .orFail()
-      .then((user) => {
-        console.info(user);
-        res.status(SUCCESS).send({ data: user });
-      })
-      .catch((err) => {
-        console.error(`Error from getCurrentUser: ${err}`);
-        sendErrorResponse(res, err);
-      });
-  }
+  const userId = req.user._id;
+  User.findById(userId)
+    .orFail()
+    .then((user) => {
+      console.info(user);
+      res.status(SUCCESS).send({ data: user });
+    })
+    .catch((err) => {
+      console.error(`Error from getCurrentUser: ${err}`);
+      sendErrorResponse(res, err);
+    });
 }
 
 function login(req, res) {
@@ -118,27 +105,23 @@ function login(req, res) {
 }
 
 function updateProfile(req, res) {
-  if (!isAuthorized(req)) {
-    sendErrorResponse(res, createAuthenticationError());
-  } else {
-    console.info(`Update user: ${req.user._id}`);
-    const userId = { _id: req.user._id };
-    const update = { name: req.body.name, avatar: req.body.avatar };
-    const options = {
-      new: true,
-      runValidators: true,
-    };
-    User.findOneAndUpdate(userId, update, options)
-      .then((newUser) => {
-        console.info('Success. New user is: ');
-        console.info(newUser);
-        res.status(SUCCESS).send({ data: newUser });
-      })
-      .catch((err) => {
-        console.info('Update failed');
-        sendErrorResponse(res, err);
-      });
-  }
+  console.info(`Update user: ${req.user._id}`);
+  const userId = { _id: req.user._id };
+  const update = { name: req.body.name, avatar: req.body.avatar };
+  const options = {
+    new: true,
+    runValidators: true,
+  };
+  User.findOneAndUpdate(userId, update, options)
+    .then((newUser) => {
+      console.info('Success. New user is: ');
+      console.info(newUser);
+      res.status(SUCCESS).send({ data: newUser });
+    })
+    .catch((err) => {
+      console.info('Update failed');
+      sendErrorResponse(res, err);
+    });
 }
 
 module.exports = {

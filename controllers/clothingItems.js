@@ -1,32 +1,26 @@
 const ClothingItem = require('../models/clothingItem');
 const {
   SUCCESS,
-  createAuthenticationError,
   createAuthorizationError,
   sendErrorResponse,
 } = require('../utils/errors');
-const { isAuthorized } = require('../utils/auth');
 
 const createItem = (req, res) => {
   console.info('createItem request body: ', req.body);
   console.info('createItem request params: ', req.params);
   console.info('createItem user id: ', req.user._id);
 
-  if (!isAuthorized(req)) {
-    sendErrorResponse(createAuthenticationError());
-  } else {
-    const { name, weather, imageUrl } = req.body;
-    const userId = req.user._id;
-    ClothingItem.create({
-      name, weather, imageUrl, owner: userId,
-    }).then((item) => {
-      console.info(item);
-      res.status(SUCCESS).send({ data: item });
-    }).catch((err) => {
-      console.error('createItem error response: ', `${err}`);
-      sendErrorResponse(res, err);
-    });
-  }
+  const { name, weather, imageUrl } = req.body;
+  const userId = req.user._id;
+  ClothingItem.create({
+    name, weather, imageUrl, owner: userId,
+  }).then((item) => {
+    console.info(item);
+    res.status(SUCCESS).send({ data: item });
+  }).catch((err) => {
+    console.error('createItem error response: ', `${err}`);
+    sendErrorResponse(res, err);
+  });
 };
 
 const getItems = (req, res) => {
@@ -47,37 +41,33 @@ const deleteItem = (req, res) => {
   console.info('deleteItem request params: ', req.params);
   console.info('deleteItem user id: ', req.user._id);
 
-  if (!isAuthorized(req)) {
-    sendErrorResponse(createAuthenticationError());
-  } else {
-    const { itemId } = req.params;
-    ClothingItem.findOne({ _id: itemId })
-      .orFail()
-      .then((validateItem) => {
-        const ownerId = validateItem.owner.valueOf();
-        console.log(`ownerId: ${ownerId}`);
-        if (!(ownerId === req.user._id)) {
-          console.error(`${validateItem.owner} !== ${req.user._id}`);
-          const err = createAuthorizationError('Validation failed');
-          sendErrorResponse(res, err);
-        } else {
-          console.info(`deleteItem: ${itemId}`);
-          ClothingItem.findByIdAndDelete(itemId)
-            .orFail()
-            .then((item) => {
-              res.status(SUCCESS).send(item);
-            })
-            .catch((err) => {
-              console.error('deleteItem error response: ', `${err}`);
-              sendErrorResponse(res, err);
-            });
-        }
-      })
-      .catch((err) => {
-        console.log(err);
+  const { itemId } = req.params;
+  ClothingItem.findOne({ _id: itemId })
+    .orFail()
+    .then((validateItem) => {
+      const ownerId = validateItem.owner.valueOf();
+      console.log(`ownerId: ${ownerId}`);
+      if (!(ownerId === req.user._id)) {
+        console.error(`${validateItem.owner} !== ${req.user._id}`);
+        const err = createAuthorizationError('Validation failed');
         sendErrorResponse(res, err);
-      });
-  }
+      } else {
+        console.info(`deleteItem: ${itemId}`);
+        ClothingItem.findByIdAndDelete(itemId)
+          .orFail()
+          .then((item) => {
+            res.status(SUCCESS).send(item);
+          })
+          .catch((err) => {
+            console.error('deleteItem error response: ', `${err}`);
+            sendErrorResponse(res, err);
+          });
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+      sendErrorResponse(res, err);
+    });
 };
 
 const likeItem = (req, res) => {
@@ -85,20 +75,16 @@ const likeItem = (req, res) => {
   console.info('likeItem request params: ', req.params);
   console.info('likeItem user id: ', req.user._id);
 
-  if (!isAuthorized) {
-    sendErrorResponse(createAuthenticationError());
-  } else {
-    ClothingItem.findByIdAndUpdate(
-      req.params.itemId,
-      { $addToSet: { likes: req.user._id } },
-      { new: true },
-    ).orFail()
-      .then((item) => res.status(SUCCESS).send(item))
-      .catch((err) => {
-        console.error('likeItem error response: ', `${err}`);
-        sendErrorResponse(res, err);
-      });
-  }
+  ClothingItem.findByIdAndUpdate(
+    req.params.itemId,
+    { $addToSet: { likes: req.user._id } },
+    { new: true },
+  ).orFail()
+    .then((item) => res.status(SUCCESS).send(item))
+    .catch((err) => {
+      console.error('likeItem error response: ', `${err}`);
+      sendErrorResponse(res, err);
+    });
 };
 
 const dislikeItem = (req, res) => {
@@ -106,20 +92,16 @@ const dislikeItem = (req, res) => {
   console.info('dislikeItem request params: ', req.params);
   console.info('dislikeItem user id: ', req.user._id);
 
-  if (!isAuthorized) {
-    sendErrorResponse(createAuthenticationError());
-  } else {
-    ClothingItem.findByIdAndUpdate(
-      req.params.itemId,
-      { $pull: { likes: req.user._id } },
-      { new: true },
-    ).orFail()
-      .then((item) => res.status(SUCCESS).send(item))
-      .catch((err) => {
-        console.error('dislikeItem error response: ', `${err}`);
-        sendErrorResponse(res, err);
-      });
-  }
+  ClothingItem.findByIdAndUpdate(
+    req.params.itemId,
+    { $pull: { likes: req.user._id } },
+    { new: true },
+  ).orFail()
+    .then((item) => res.status(SUCCESS).send(item))
+    .catch((err) => {
+      console.error('dislikeItem error response: ', `${err}`);
+      sendErrorResponse(res, err);
+    });
 };
 
 module.exports = {
