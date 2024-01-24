@@ -42,30 +42,6 @@ function createUser(req, res) {
 }
 
 // Request
-function getUsers(req, res) {
-  console.info('getUsers request body: ', req.body);
-  console.info('getUsers request params: ', req.params);
-  User.find({}).then((users) => res.status(SUCCESS).send(users))
-    .catch((err) => {
-      console.error(`Error from getUsers: ${err}`);
-      sendErrorResponse(res, err);
-    });
-}
-
-function getUser(req, res) {
-  console.info('getUser request body: ', req.body);
-  console.info('getUser request params: ', req.params);
-  const { userId } = req.params;
-  User.findById(userId).orFail()
-    .then((user) => {
-      res.status(SUCCESS).send({ data: user });
-    })
-    .catch((err) => {
-      console.error(`Error from getUser: ${err}`);
-      sendErrorResponse(res, err);
-    });
-}
-
 function getCurrentUser(req, res) {
   console.info(req);
   console.info('getCurrentUser: ', req.user._id);
@@ -127,8 +103,6 @@ function updateProfile(req, res) {
 module.exports = {
   createUser,
   getCurrentUser,
-  getUsers,
-  getUser,
   login,
   updateProfile,
 };
