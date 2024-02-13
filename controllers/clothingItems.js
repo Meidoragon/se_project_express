@@ -10,10 +10,10 @@ const createItem = (req, res) => {
   console.info('createItem request params: ', req.params);
   console.info('createItem user id: ', req.user._id);
 
-  const { name, weather, imageUrl } = req.body;
+  const { name, weather, link } = req.body;
   const userId = req.user._id;
   ClothingItem.create({
-    name, weather, imageUrl, owner: userId,
+    name, weather, link, owner: userId,
   }).then((item) => {
     console.info(item);
     res.status(SUCCESS).send({ data: item });
@@ -28,7 +28,10 @@ const getItems = (req, res) => {
   console.info('getItems request params: ', req.params);
   // console.info('getItems user id: ', req.user._id);
 
-  ClothingItem.find({}).then((items) => res.status(SUCCESS).send(items))
+  ClothingItem.find({}).then((items) => {
+    console.info(items);
+    res.status(SUCCESS).send(items);
+  })
     .catch((err) => {
       console.error('getItems error response: ', `${err}`);
       sendErrorResponse(res, err);

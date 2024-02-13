@@ -15,6 +15,7 @@ function extractBearerToken(header) {
 }
 
 function authorize(req, res, next) {
+  console.info(req.headers.authorization);
   const { authorization } = req.headers;
   if (!authorization || !authorization.startsWith('Bearer ')) {
     return handleAuthError(res);
