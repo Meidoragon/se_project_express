@@ -87,6 +87,7 @@ function login(req, res) {
 
 function updateProfile(req, res) {
   console.info(`Update user: ${req.user._id}`);
+  console.info(req.body);
   const userId = { _id: req.user._id };
   const update = { name: req.body.name, avatar: req.body.avatar };
   const options = {
