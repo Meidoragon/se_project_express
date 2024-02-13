@@ -7,6 +7,7 @@
  * Dependencies
  * Setup
  * Running
+ * TODO
 
 ## Intro
   This is the back end portion of WTWR, a web app designed to suggest clothing to wear based off of the weather.
@@ -32,3 +33,5 @@
 
 `npm run dev` — to launch the server with the hot reload feature
 
+## TODO
+  * Implement stricter password requirements (ex. must include different types of characters)
