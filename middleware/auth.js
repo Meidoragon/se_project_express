@@ -1,14 +1,16 @@
 const jwt = require('jsonwebtoken');
 const { JWT_SECRET } = require('../utils/config');
 const user = require('../models/user');
-const {
-  createAuthenticationError,
-  sendErrorResponse,
-} = require('../utils/errors');
+// const {
+//   createAuthenticationError,
+//   sendErrorResponse,
+// } = require('../utils/errors');
 
-function handleAuthError(res) {
-  sendErrorResponse(res, createAuthenticationError());
-}
+const UnauthorizedError = require('../utils/errors/Unauthorized');
+
+// function handleAuthError(res) {
+//   sendErrorResponse(res, createAuthenticationError());
+// }
 
 function extractBearerToken(header) {
   return header.replace('Bearer ', '');
@@ -18,7 +20,7 @@ function authorize(req, res, next) {
   console.info(req.headers.authorization);
   const { authorization } = req.headers;
   if (!authorization || !authorization.startsWith('Bearer ')) {
-    return handleAuthError(res);
+    next(new UnauthorizedError('Authorization Error: Invalid jwt format'));
   }
 
   const token = extractBearerToken(authorization);
@@ -26,17 +28,22 @@ function authorize(req, res, next) {
   try {
     payload = jwt.verify(token, JWT_SECRET);
   } catch (err) {
-    console.info('issue verifying token');
-    return handleAuthError(res);
+    console.error('Error validating token');
+    if (err.name === 'TokenExpiredError') {
+      next(new UnauthorizedError('Authorization Error: jwt expired'));
+    } else {
+      next(err);
+    }
   }
 
-  user.findById(payload).orFail()
+  user.findById(payload)
+    .orFail()
     .then(() => {
       req.user = payload;
       next();
     })
-    .catch(() => {
-      handleAuthError(res);
+    .catch((err) => {
+      next(err);
     });
 
   return null;

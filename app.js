@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const helmet = require('helmet');
 const cors = require('cors');
 const { authorize } = require('./middleware/auth');
+const errorHandler = require('./middleware/errorHandler');
 const {
   createUser,
   login,
@@ -33,6 +34,7 @@ app.post('/signin', login);
 app.get('/items', getItems);
 app.use(authorize);
 app.use(routes);
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`Server open on ${BASE_PATH}:${PORT}`);

@@ -2,19 +2,19 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const config = require('../utils/config');
-const {
-  createValidationError,
-} = require('../utils/errors');
-// const { isAuthorized } = require('../utils/auth');
+const BadRequestError = require('../utils/errors/BadRequest');
+const ConflictError = require('../utils/errors/Conflict');
 
-const {
-  SUCCESS,
-  sendErrorResponse,
-} = require('../utils/errors');
+// const {
+//   createValidationError,
+// } = require('../utils/errors');
+
+const { SUCCESS } = require('../utils/statusCodes');
+
 // CRUD
 
 // Create
-function createUser(req, res) {
+function createUser(req, res, next) {
   console.info('createUser request body: ', req.body);
   console.info('createUser request params: ', req.params);
 
@@ -36,18 +36,25 @@ function createUser(req, res) {
         res.status(SUCCESS).send({ avatar: user.avatar, name: user.name, email: user.email });
       }).catch((err) => {
         console.error('Error creating User: ', `${err}`);
-        sendErrorResponse(res, err);
+        if (err.name === 'ValidationError') {
+          next(new BadRequestError(err.message));
+        } else if (err.name === 'MongoServerError' && err.code === 11000) {
+          next(new ConflictError('Email already exists'));
+        } else {
+          next(err);
+        }
       });
     })
     .catch((err) => {
       console.error('Error hashing password: ');
       console.error(err);
-      sendErrorResponse(res, err);
+      next(err);
+      // sendErrorResponse(res, err);
     });
 }
 
 // Request
-function getCurrentUser(req, res) {
+function getCurrentUser(req, res, next) {
   console.info(req);
   console.info('getCurrentUser: ', req.user._id);
   const userId = req.user._id;
@@ -59,16 +66,18 @@ function getCurrentUser(req, res) {
     })
     .catch((err) => {
       console.error(`Error from getCurrentUser: ${err}`);
-      sendErrorResponse(res, err);
+      next(err);
+      // sendErrorResponse(res, err);
     });
 }
 
-function login(req, res) {
+function login(req, res, next) {
   console.info('Login attempt...');
   if (!('email' in req.body) || !('password' in req.body)) {
     console.info('login failed.');
     console.info('no email or password');
-    sendErrorResponse(res, createValidationError());
+    next(new BadRequestError('Email or password not provided'));
+    // sendErrorResponse(res, createValidationError());
   } else {
     User.findUserByCredentials(req.body.email, req.body.password)
       .then((user) => {
@@ -80,12 +89,13 @@ function login(req, res) {
       })
       .catch((err) => {
         console.info('login failed.');
-        sendErrorResponse(res, err);
+        next(err);
+        // sendErrorResponse(res, err);
       });
   }
 }
 
-function updateProfile(req, res) {
+function updateProfile(req, res, next) {
   console.info(`Update user: ${req.user._id}`);
   console.info(req.body);
   const userId = { _id: req.user._id };
@@ -102,7 +112,8 @@ function updateProfile(req, res) {
     })
     .catch((err) => {
       console.info('Update failed');
-      sendErrorResponse(res, err);
+      // sendErrorResponse(res, err);
+      next(err);
     });
 }
 
