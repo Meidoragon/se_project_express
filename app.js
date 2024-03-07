@@ -11,6 +11,10 @@ const {
   login,
 } = require('./controllers/users');
 const { getItems } = require('./controllers/clothingItems');
+const {
+  requestLogger,
+  errorLogger,
+} = require('./middleware/logger');
 
 const {
   PORT,
@@ -29,21 +33,15 @@ const routes = require('./routes');
 
 app.disable('x-powered-by');
 app.use(express.json());
-app.use((req, res, next) => {
-  console.log(req);
-  console.log(req.params);
-  console.log(req.body);
-  console.log('res=======================================================================================================');
-  console.log(res);
-  next();
-});
 app.use(helmet());
 app.use(cors());
+app.use(requestLogger);
 app.post('/signup', validation.validateUserInfoBody, createUser);
 app.post('/signin', validation.validateUserLogin, login);
 app.get('/items', getItems);
 app.use(authorize);
 app.use(routes);
+app.use(errorLogger);
 app.use(errors());
 app.use(errorHandler);
 
