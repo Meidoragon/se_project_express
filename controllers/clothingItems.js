@@ -49,8 +49,8 @@ const deleteItem = (req, res, next) => {
   console.info('deleteItem request params: ', req.params);
   console.info('deleteItem user id: ', req.user._id);
 
-  const { itemId } = req.params;
-  ClothingItem.findOne({ _id: itemId })
+  const { id } = req.params;
+  ClothingItem.findOne({ _id: id })
     .orFail()
     .then((validateItem) => {
       const ownerId = validateItem.owner.valueOf();
@@ -59,8 +59,8 @@ const deleteItem = (req, res, next) => {
         console.error(`${validateItem.owner} !== ${req.user._id}`);
         next(new ForbiddenError('No permissions to delete this item'));
       } else {
-        console.info(`deleteItem: ${itemId}`);
-        ClothingItem.findByIdAndDelete(itemId)
+        console.info(`deleteItem: ${id}`);
+        ClothingItem.findByIdAndDelete(id)
           .orFail()
           .then((item) => {
             res.status(SUCCESS).send(item);
@@ -89,7 +89,7 @@ const likeItem = (req, res, next) => {
   console.info('likeItem user id: ', req.user._id);
 
   ClothingItem.findByIdAndUpdate(
-    req.params.itemId,
+    req.params.id,
     { $addToSet: { likes: req.user._id } },
     { new: true },
   ).orFail()
@@ -113,7 +113,7 @@ const dislikeItem = (req, res, next) => {
   console.info('dislikeItem user id: ', req.user._id);
 
   ClothingItem.findByIdAndUpdate(
-    req.params.itemId,
+    req.params.id,
     { $pull: { likes: req.user._id } },
     { new: true },
   ).orFail()

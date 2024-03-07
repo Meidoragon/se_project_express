@@ -2,7 +2,9 @@ const express = require('express');
 const mongoose = require('mongoose');
 const helmet = require('helmet');
 const cors = require('cors');
+const { errors } = require('celebrate');
 const { authorize } = require('./middleware/auth');
+const validation = require('./middleware/validation');
 const errorHandler = require('./middleware/errorHandler');
 const {
   createUser,
@@ -27,13 +29,22 @@ const routes = require('./routes');
 
 app.disable('x-powered-by');
 app.use(express.json());
+app.use((req, res, next) => {
+  console.log(req);
+  console.log(req.params);
+  console.log(req.body);
+  console.log('res=======================================================================================================');
+  console.log(res);
+  next();
+});
 app.use(helmet());
 app.use(cors());
-app.post('/signup', createUser);
-app.post('/signin', login);
+app.post('/signup', validation.validateUserInfoBody, createUser);
+app.post('/signin', validation.validateUserLogin, login);
 app.get('/items', getItems);
 app.use(authorize);
 app.use(routes);
+app.use(errors());
 app.use(errorHandler);
 
 app.listen(PORT, () => {

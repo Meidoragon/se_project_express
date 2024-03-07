@@ -1,4 +1,5 @@
 const router = require('express').Router();
+const validate = require('../middleware/validation');
 
 const {
   createItem,
@@ -10,13 +11,13 @@ const {
 // CRUD
 
 // // Create
-router.post('/', createItem);
+router.post('/', validate.validateCardBody, createItem);
 
 // // Update
-router.put('/:itemId/likes', likeItem);
+router.put('/:id/likes', validate.validateID, likeItem);
 
 // // Delete
-router.delete('/:itemId', deleteItem);
-router.delete('/:itemId/likes', dislikeItem);
+router.delete('/:id', validate.validateID, deleteItem);
+router.delete('/:id/likes', validate.validateID, dislikeItem);
 
 module.exports = router;
