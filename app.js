@@ -17,10 +17,10 @@ const {
 } = require('./middleware/logger');
 
 const {
-  PORT,
-  BASE_PATH,
-  DB,
-  DB_PORT,
+  PORT = '3001',
+  BASE_PATH = '127.0.0.1',
+  DB = 'wtwr_prod',
+  DB_PORT = '27017',
 } = process.env;
 
 const app = express();
