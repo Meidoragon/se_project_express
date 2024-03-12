@@ -112,8 +112,11 @@ function updateProfile(req, res, next) {
     })
     .catch((err) => {
       console.info('Update failed');
-      // sendErrorResponse(res, err);
-      next(err);
+      if (err.name === 'ValidationError') {
+        next(new BadRequestError('Validation failed.'));
+      } else {
+        next(err);
+      }
     });
 }
 
