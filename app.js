@@ -6,6 +6,7 @@ const { errors } = require('celebrate');
 const { authorize } = require('./middleware/auth');
 const validation = require('./middleware/validation');
 const errorHandler = require('./middleware/errorHandler');
+const limiter = require('./middleware/limiter');
 const {
   createUser,
   login,
@@ -36,6 +37,7 @@ app.use(express.json());
 app.use(helmet());
 app.use(cors());
 app.use(requestLogger);
+app.use(limiter);
 app.post('/signup', validation.validateUserInfoBody, createUser);
 app.post('/signin', validation.validateUserLogin, login);
 app.get('/items', getItems);
