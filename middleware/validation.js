@@ -94,6 +94,20 @@ module.exports.validateUserLogin = celebrate({
   }),
 });
 
+module.exports.validateUserUpdate = celebrate({
+  body: Joi.object().keys({
+    name: Joi.string().min(2).max(30)
+      .messages({
+        'string.min': 'The minimum length of "name" field is 2',
+        'string.max': 'The maximum length of "name" field is 30',
+      }),
+    avatar: Joi.string().custom(validateURL)
+      .messages({
+        'string.uri': 'The "avatar" field must be a valid url',
+      }),
+  }).or('name', 'avatar'), // we can allow one or both, but not neither
+});
+
 module.exports.validateID = celebrate({
   params: Joi.object().keys({
     id: Joi.string().required().min(24).max(24)
