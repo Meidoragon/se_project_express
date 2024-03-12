@@ -10,10 +10,10 @@ const createItem = (req, res, next) => {
   console.info('createItem request params: ', req.params);
   console.info('createItem user id: ', req.user._id);
 
-  const { name, weather, link } = req.body;
+  const { name, weather, imageUrl } = req.body;
   const userId = req.user._id;
   ClothingItem.create({
-    name, weather, link, owner: userId,
+    name, weather, imageUrl, owner: userId,
   }).then((item) => {
     console.info(item);
     res.status(SUCCESS).send({ data: item });

@@ -43,9 +43,9 @@ module.exports.validateCardBody = celebrate({
         'string.max': 'The maximum length of "name" field is 30',
         'string.empty': 'The "name" field must be filled in',
       }),
-    link: Joi.string().required().custom(validateURL).messages({
-      'string.empty': 'The "link" field must be filled in',
-      'string.uri': 'the "link" field must be a valid url',
+    imageUrl: Joi.string().required().custom(validateURL).messages({
+      'string.empty': 'The "imageUrl" field must be filled in',
+      'string.uri': 'the "imageUrl" field must be a valid url',
     }),
     weather: Joi.string().required().custom(validateWeather)
       .messages({
